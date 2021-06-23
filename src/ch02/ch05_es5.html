@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CH02</title>
+  <script src="../ramda.js"></script>
+  <script>
+    // function Person() {
+    //
+    // }
+
+    // console.log(Person.prototype);
+    // console.log(Person.prototype.constructor);
+    //
+    // const p1 = new Person();
+    // const p2 = new Person();
+    //
+    // // __proto__ 비표준
+    // console.log(p1.__proto__);
+    //
+    // Person.prototype.getType = function() {
+    //   return "인간";
+    // }
+    //
+    // console.log(p1.getType());
+
+    const person = {
+      type: "인간",
+      getType: function() {
+        return this.type;
+      },
+      getName: function() {
+        return this.name;
+      },
+    };
+
+    const joon = Object.create(person);
+    console.log(joon.getType());
+    joon.name = "혁준";
+    console.log(joon.getName());
+  </script>
+</head>
+<body>
+
+</body>
+</html>

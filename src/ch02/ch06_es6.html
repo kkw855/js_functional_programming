@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>CH02</title>
+  <script>
+    class Person {
+      constructor(firstName, lastName, ssn) {
+        this._firstName = firstName;
+        this._lastName = lastName;
+        this._ssn = ssn;
+        this._address = null;
+        this._birthYear = null;
+      }
+
+      get ssn() {
+        return this._ssn;
+      }
+      get fistName() {
+        return this._firstName;
+      }
+      get lastName() {
+        return this._lastName;
+      }
+      get address() {
+        return this._address;
+      }
+      get birthYear() {
+        return this._birthYear;
+      }
+      set birthYear(year) {
+        this._birthYear = year;
+      }
+      set address(address) {
+        this._address =address;
+      }
+      toString() {
+        return `Person(${this._firstName}, ${this._lastName})`;
+      }
+    }
+
+    class Student extends Person {
+      constructor(firstName, lastName, ssn, school) {
+        super(firstName, lastName);
+        this._school = school;
+      }
+      get school() {
+        return this._school;
+      }
+    }
+
+    console.log(new Student("f", "l").lastName);
+  </script>
+</head>
+<body>
+
+</body>
+</html>
