@@ -5,26 +5,8 @@
   <title>CH02</title>
   <script src="../ramda.js"></script>
   <script>
-    // function Person() {
-    //
-    // }
-
-    // console.log(Person.prototype);
-    // console.log(Person.prototype.constructor);
-    //
-    // const p1 = new Person();
-    // const p2 = new Person();
-    //
-    // // __proto__ 비표준
-    // console.log(p1.__proto__);
-    //
-    // Person.prototype.getType = function() {
-    //   return "인간";
-    // }
-    //
-    // console.log(p1.getType());
-
-    const person = {
+    "use strict";
+    const Person = {
       type: "인간",
       getType: function() {
         return this.type;
@@ -34,10 +16,106 @@
       },
     };
 
-    const joon = Object.create(person);
-    console.log(joon.getType());
-    joon.name = "혁준";
-    console.log(joon.getName());
+    const lens = {
+      x: 1,
+      y: 1,
+    }
+    const xLens = R.lens(R.prop('x'), R.assoc('x'));
+    console.log(R.view(xLens, lens));
+    console.log(R.set(xLens, 4, lens));
+    console.log(lens);
+    console.log(R.set(xLens, R.negate, lens));
+    console.log(lens);
+
+    const person = {
+      firstName: "Alonzo",
+      lastName: "",
+      ssn: "",
+      address: {
+        country: "US",
+        state: "NJ",
+        city: "Princeton",
+        zip: {
+          code: "08544",
+          location: "1234",
+        },
+        street: "Alexander St.",
+      }
+    };
+    const zipLens = R.lens(R.path(["address", "zip"]), R.assocPath(["address", "zip"]));
+    console.log(R.view(zipLens, person));
+    console.log(R.set(zipLens, { code: "1", location: "2" }, person));
+
+    const p1 = {
+      firstName: "Haskell",
+      lastName: "",
+      ssn: "",
+      address: {
+        country: "US",
+        state: "NJ",
+        city: "Princeton",
+        zip: {
+          code: "08544",
+          location: "1234",
+        },
+        street: "Alexander St.",
+      }
+    };
+    const p2 = {
+      firstName: "Alan",
+      lastName: "",
+      ssn: "",
+      address: {
+        country: "England",
+        state: "NJ",
+        city: "Princeton",
+        zip: {
+          code: "08544",
+          location: "1234",
+        },
+        street: "Alexander St.",
+      }
+    };
+    const p3 = {
+      firstName: "Alonzo",
+      lastName: "",
+      ssn: "",
+      address: {
+        country: "US",
+        state: "NJ",
+        city: "Princeton",
+        zip: {
+          code: "08544",
+          location: "1234",
+        },
+        street: "Alexander St.",
+      }
+    };
+    const p4 = {
+      firstName: "Stephan",
+      lastName: "",
+      ssn: "",
+      address: {
+        country: "Korea",
+        state: "NJ",
+        city: "Princeton",
+        zip: {
+          code: "08544",
+          location: "1234",
+        },
+        street: "Alexander St.",
+      }
+    };
+
+    console.log("peoples in US");
+    const peoples = [p1, p2, p3, p4];
+    const countryL = R.lensPath(["address", "country"]);
+    const inCountry = R.curry(function(country, people) {
+      return R.equals(R.view(countryL, people), country);
+    });
+    peoples.filter(inCountry("US")).map(console.log);
+
+    console.log();
   </script>
 </head>
 <body>
