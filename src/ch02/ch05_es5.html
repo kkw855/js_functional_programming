@@ -4,17 +4,9 @@
   <meta charset="UTF-8">
   <title>CH02</title>
   <script src="../ramda.js"></script>
+  <script src="../sanctuary.js"></script>
   <script>
     "use strict";
-    const Person = {
-      type: "인간",
-      getType: function() {
-        return this.type;
-      },
-      getName: function() {
-        return this.name;
-      },
-    };
 
     const lens = {
       x: 1,
@@ -114,6 +106,38 @@
       return R.equals(R.view(countryL, people), country);
     });
     peoples.filter(inCountry("US")).map(console.log);
+
+    function Person2(name, age, gender) {
+      this.name = name;
+      this.age = age;
+      this.gender = gender;
+    }
+    Person2.prototype.getName = function() {
+      return this.name;
+    }
+    Person2.prototype.getAge = function() {
+      return this.age;
+    }
+    Person2.prototype.getGender = function() {
+      return this.gender;
+    }
+    function Teacher(name, age, gender, subject) {
+      Person2.call(this, name, age, gender);
+      this.subject = subject;
+    }
+    Teacher.prototype = Object.create(Person2.prototype);
+    Teacher.prototype.getSubject = function() {
+      return this.subject;
+    }
+
+    const teacher = new Teacher("John Doe", 30, "male", "Maths");
+    console.log(
+      "Teacher",
+      teacher.getName(),
+      teacher.getAge(),
+      teacher.getGender(),
+      teacher.getSubject()
+    );
 
     console.log();
   </script>

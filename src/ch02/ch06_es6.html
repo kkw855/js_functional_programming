@@ -14,28 +14,28 @@
       }
 
       get ssn() {
-        return this._ssn;
+        return this.ssn;
       }
       get fistName() {
-        return this._firstName;
+        return this.firstname;
       }
       get lastName() {
-        return this._lastName;
+        return this.lastname;
       }
       get address() {
-        return this._address;
+        return this.address;
       }
       get birthYear() {
-        return this._birthYear;
+        return this.birthYear;
       }
       set birthYear(year) {
-        this._birthYear = year;
+        this.birthYear = year;
       }
       set address(address) {
-        this._address =address;
+        this.address =address;
       }
       toString() {
-        return `Person(${this._firstName}, ${this._lastName})`;
+        return `Person(${this.firstname}, ${this.lastname})`;
       }
     }
 
@@ -45,7 +45,7 @@
         this._school = school;
       }
       get school() {
-        return this._school;
+        return this.school;
       }
     }
 

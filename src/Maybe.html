@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <title>Maybe</title>
+  <script src="lodash.js"></script>
+  <script src="ramda.js"></script>
+  <script src="monad.js"></script>
+  <script src="rxjs.js"></script>
+  <script>
+    "use strict";
+
+    // function showStudent(ssn) {
+    //   const student = db.find(ssn);
+    //   if (student !== null) {
+    //     document.querySelector("#" + elementId).innerHTML = student.ssn + ", " + student.firstname
+    //       + ", " + student.lastname;
+    //   } else {
+    //     throw new Error("학생을 찾을 수 없습니다!");
+    //   }
+    // }
+
+    // showStudent("444-44-444");
+
+    const find = R.curry(function (db, id) {
+      const obj = db.find(id);
+      if (obj === null) {
+        throw new Error("객체를 찾을 수 없습니다!");
+      }
+      return obj;
+    });
+
+    const csv = function (student) {
+      return student.ssn + ", " + student.firstname + ", " + student.lastname;
+    };
+
+    const append = function (selector, info) {
+      document.querySelector(selector).innerHTML = info;
+    }
+
+    const sum = function (total, current) {
+      return total + current;
+    }
+    const total = function (arr) {
+      return arr.reduce(sum);
+    }
+    const size = function (arr) {
+      return arr.length;
+    }
+    const divide = function (a, b) {
+      return a / b;
+    }
+    const average = function (arr) {
+      return divide(total(arr), size(arr));
+    }
+
+    const input = [80, 90, 100];
+    console.log(average(input));
+
+    const enrollment = [
+      {
+        enrolled: 2, grade: 100,
+      },
+      {
+        enrolled: 2, grade: 80,
+      },
+      {
+        enrolled: 1, grade: 89,
+      },
+    ]
+
+    let totalGrades = 0;
+    let totalStudentsFound = 0;
+    for (let i = 0; i < enrollment.length; i++) {
+      const student = enrollment[i];
+      if (student !== null) {
+        if (student.enrolled > 1) {
+          totalGrades += student.grade;
+          totalStudentsFound++;
+        }
+      }
+    }
+
+    const ave =
+      _.chain(enrollment)
+        .filter(function (student) {
+          return student.grade > 1;
+        })
+        .map("grade")
+        .mean()
+        .value();
+
+    console.log(ave);
+
+    window.onload = function () {
+      // let valid = false;
+      // const elem = document.querySelector("#student-ssn");
+      // elem.onkeyup = function () {
+      //   let val = elem.value;
+      //   if (val !== null && val.length !== 0) {
+      //     val = val.replace(/^\s*|\s*$|\-s/g, "");
+      //     if (val.length === 9) {
+      //       console.log("올바른 SSN: " + val + "!");
+      //       valid = true;
+      //     } else {
+      //       console.log("잘못된 SSN: " + val + "!");
+      //     }
+      //   } else {
+      //     console.log("잘못된 SSN: " + val + "!");
+      //   }
+      // }
+
+      rxjs.fromEvent(document.querySelector("#student-ssn"), "keyup")
+        .pipe(
+          rxjs.operators.map(function (e) {
+            return e.target.value;
+          }),
+          rxjs.operators.map(function (ssn) {
+            return ssn.replace(/^\s*|\s*$|\-s/g, "");
+          }),
+          rxjs.operators.filter(function (ssn) {
+            return ssn !== null && ssn.length === 9;
+          })
+        )
+        .subscribe(function (validSsn) {
+          console.log("올바른 SSN: " + validSsn + "!");
+        });
+    }
+
+    function Person(firstname, lastname, ssn) {
+      this.firstname = firstname;
+      this.lastname = lastname;
+      this.ssn = ssn;
+      this.address = null;
+      this.birthYear = null;
+    }
+
+    Person.prototype.getSsn = function () {
+      return this.ssn;
+    }
+    Person.prototype.getFirstname = function () {
+      return this.firstname;
+    }
+    Person.prototype.getLastname = function () {
+      return this.lastname;
+    }
+    Person.prototype.getAddress = function () {
+      return this.address;
+    }
+    Person.prototype.getBirthYear = function () {
+      return this.birthYear;
+    }
+    Person.prototype.setBirthYear = function (birthYear) {
+      this.birthYear = birthYear;
+    }
+    Person.prototype.setAddress = function (address) {
+      this.address = address;
+    }
+    Person.prototype.toString = function () {
+      return "Person(" + this.firstname + ", " + this.lastname + ")";
+    }
+    Person.prototype.peopleInSameCountry = function (friends) {
+      const result = [];
+      for (let idx in friends) {
+        const friend = friends[idx];
+        if (this.getAddress().country === friend.getAddress().country) {
+          result.push(friend);
+        }
+      }
+      return result;
+    }
+
+    function Student(firstname, lastname, ssn, school) {
+      Person.call(this, firstname, lastname, ssn);
+      this.school = school;
+    }
+
+    Student.prototype = Object.create(Person.prototype);
+    Student.prototype.getSchool = function () {
+      return this.school;
+    }
+    Student.prototype.studentsInSameCountryAndSchool = function (friends) {
+      const closeFriends = this.peopleInSameCountry(friends);
+      const result = [];
+      for (let idx in closeFriends) {
+        const friend = closeFriends[idx];
+        if (this.getSchool() === friend.getSchool()) {
+          result.push(friend);
+        }
+      }
+      return result;
+    }
+
+    function Address(country) {
+      this.country = country;
+    }
+
+    const curry = new Student("Haskell", "Curry", "111-11-1111", "Penn State");
+    curry.setAddress(new Address("US"));
+
+    const turing = new Student("Alan", "Turing", "222-22-2222", "Princeton");
+    turing.setAddress(new Address("England"));
+
+    const church = new Student("Alonzo", "Church", "333-33-3333", "Princeton");
+    church.setAddress(new Address("US"));
+
+    const kleene = new Student("Stephen", "Kleene", "444-44-4444", "Princeton");
+    kleene.setAddress(new Address("US"));
+
+    const res0 = church.studentsInSameCountryAndSchool([curry, turing, kleene]);
+    console.log(res0);
+
+    const selector = function (country, school) {
+      return function (student) {
+        return student.getAddress().country === country && student.getSchool() === school;
+      }
+    }
+
+    const findStudentsBy = function (friends, selector) {
+      return friends.filter(selector);
+    }
+
+    const res1 = findStudentsBy([curry, turing, church, kleene], selector("US", "Princeton"));
+    console.log(res1);
+
+    function zipCode(code, location) {
+      return {
+        code: function () {
+          return code;
+        },
+        location: function () {
+          return location;
+        },
+        fromString: function (str) {
+          const parts = str.split("-");
+          return zipCode(parts[0], parts[1]);
+        },
+        toString: function () {
+          return code + "-" + location;
+        }
+      }
+    }
+
+    const princetonZip = zipCode("08544", "3345");
+    const res2 = princetonZip.toString();
+    console.log(res2);
+
+    function coordinate(lat, long) {
+      return {
+        latitude: function () {
+          return lat;
+        },
+        longitude: function () {
+          return long;
+        },
+        translate: function (dx, dy) {
+          return coordinate(lat + dx, long + dy);
+        },
+        toString: function () {
+          return "(" + lat + ", " + long + ")";
+        }
+      }
+    }
+
+    const greenwich = coordinate(51.4778, 0.0015);
+    const res3 = greenwich.toString();
+    console.log(res3);
+    const res4 = greenwich.translate(10, 10).toString();
+    console.log(res4);
+
+    const p1 = Object.freeze(new Person("Haskell", "Curry", "444-44-4444"));
+    // p1.firstName = "Bob";
+
+    function Address2(country, state, city, zip, street) {
+      this.country = country;
+      this.state = state;
+      this.city = city;
+      this.zip = zip;
+      this.street = street;
+    }
+
+    Address2.prototype.getCountry = function () {
+      return this.country;
+    }
+    Address2.prototype.getState = function () {
+      return this.state;
+    }
+    Address2.prototype.getCity = function () {
+      return this.city;
+    }
+    Address2.prototype.getZip = function () {
+      return this.zip;
+    }
+    Address2.prototype.getStreet = function () {
+      return this.street;
+    }
+
+    const p2 = new Person("Haskell", "Curry", "444-44-4444");
+    p2.setAddress(new Address2("US", "NJ", "Princeton", zipCode("08544", "1234"), "Alexander St."));
+    const pz2 = Object.freeze(p2);
+    console.log(pz2);
+    pz2.getAddress()._country = "France";
+    const res5 = pz2.getAddress().getCountry();
+    console.log(res5);
+
+    const p3 = new Person("Alonzo", "Church", "444-44-4444");
+    p3.setAddress(new Address2("US", "NJ", "Princeton", zipCode("08544", "1234"), "Alexander St."));
+    const lastnameLens = R.lensProp("_lastname");
+    const newP3 = R.set(lastnameLens, "Mourning", p3);
+    console.log(newP3);
+
+    const zipLens = R.lensPath(["address", "zip"]);
+    const newP4 = R.set(zipLens, zipCode("90210", "5678"), p3);
+    const newZip = R.view(zipLens, newP4);
+    const originZip = R.view(zipLens, p3);
+    console.log(originZip.toString(), newZip.toString());
+
+    const multiplier = new Function("a", "b", "return a * b;");
+    const res6 = multiplier(2, 4);
+    console.log(res6);
+
+    function applyOperation(a, b, opt) {
+      return opt(a, b);
+    }
+
+    const res7 = applyOperation(2, 3, multiplier);
+    console.log(res7);
+
+    function add(a) {
+      return function (b) {
+        return a + b;
+      }
+    }
+
+    const res8 = add(3)(3);
+    console.log(res8);
+
+    const countryL = R.lensPath(["address", "country"]);
+    const inCountry = R.curry(function (country, people) {
+      return R.equals(R.view(countryL, people), country);
+    })
+
+    const people = [curry, turing, church, kleene];
+    people.filter(inCountry("US")).map(console.log);
+
+    const outerVar = "Outer";
+    function makeInner(params) {
+      const innerVar = "Inner";
+
+      function inner() {
+        console.log(outerVar + ", " + innerVar + ", " + params + "이(가) 보여요!");
+      }
+      return inner;
+    }
+    const inner = makeInner("Params");
+    inner();
+
+    // const Option = Monad.Option;
+    //
+    // console.log(Option.fromNullable(null).isEmpty());
+    // console.log(Option.fromNullable(undefined).isEmpty());
+    // console.log(Option.fromNullable("ABC").isEmpty());
+    // console.log(Option.fromNullable("a").map(function(s) {
+    //   return s.toUpperCase();
+    // }));
+    // console.log(new Option(null).map(function(s) {
+    //   return s.toUpperCase();
+    // }));
+    //
+    // const IO = Monad.IO;
+    // const read = function(document, selector) {
+    //
+    // }
+    // // IO.from(console.log("aaaaa"));
+    //
+    // const abby = {name: 'Abby', age: 7, hair: 'blond'};
+    // const fred = {name: 'Fred', age: 12, hair: 'brown'};
+    // const rusty = {name: 'Rusty', age: 10, hair: 'brown'};
+    // const alois = {name: 'Alois', age: 15, disposition: 'surly'};
+    // const kids = [abby, fred, rusty, alois];
+    // // 속성과 값이 같은
+    // const hasBrownHair = R.propEq("hair", "brown");
+    // console.log(hasBrownHair(abby));
+    // console.log(hasBrownHair(fred));
+    // // 배열에서 조건이 일치하는 엘리먼트 찾기
+    // console.log(R.filter(hasBrownHair, kids));
+    // // 비교
+    // console.log(R.equals(
+    //   {
+    //     a: "1",
+    //     b: {
+    //       c: 4,
+    //     },
+    //   },
+    //   {
+    //     a: "1",
+    //     b: {
+    //       c: 4,
+    //     },
+    //   }
+    // ));
+    //
+    // const equalsi = R.useWith(R.equals, [R.toLower, R.toLower]);
+    // const check = function(a, b) {
+    //   console.log(a + " = " + b + "?", equalsi(a, b));
+    // };
+    // check('aaa', 'aaa');
+    // check('aaa', 'aa');
+    // check('aAa', 'aaa');
+    // check('aaa', 'aAa');
+    // check('aba', 'aaa');
+    //
+    // console.log(R.dec(40));
+    // console.log(R.inc(40));
+    // console.log();
+    // console.log();
+    // console.log();
+    // console.log();
+    // console.log();
+    // console.log();
+  </script>
+</head>
+<body>
+<label for="student-ssn"></label>
+<input id="student-ssn" type="text">
+</body>
+</html>
