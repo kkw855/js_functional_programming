@@ -10,6 +10,10 @@
   <script>
     "use strict";
 
+    const Maybe = Monad.Maybe;
+    const Just = Monad.Just;
+    const Nothing = Monad.Nothing;
+
     // function showStudent(ssn) {
     //   const student = db.find(ssn);
     //   if (student !== null) {
@@ -144,6 +148,9 @@
     Person.prototype.getLastname = function () {
       return this.lastname;
     }
+    Person.prototype.getFullName = function () {
+      return this.firstname + " " + this.lastname;
+    }
     Person.prototype.getAddress = function () {
       return this.address;
     }
@@ -269,6 +276,7 @@
     console.log(res4);
 
     const p1 = Object.freeze(new Person("Haskell", "Curry", "444-44-4444"));
+
     // p1.firstName = "Bob";
 
     function Address2(country, state, city, zip, street) {
@@ -344,16 +352,161 @@
     people.filter(inCountry("US")).map(console.log);
 
     const outerVar = "Outer";
+
     function makeInner(params) {
       const innerVar = "Inner";
 
       function inner() {
         console.log(outerVar + ", " + innerVar + ", " + params + "이(가) 보여요!");
       }
+
       return inner;
     }
+
     const inner = makeInner("Params");
     inner();
+
+    const pp1 = new Person("Haskell", "Curry", "111-11-1111");
+    pp1.setAddress(new Address("US"));
+    pp1.setBirthYear(1900);
+
+    const pp2 = new Person("Barkley", "Rosser", "222-22-2222");
+    pp2.setAddress(new Address("Greece"));
+    pp2.setBirthYear(1907);
+
+    const pp3 = new Person("John", "von Neumann", "333-33-3333", "Princeton");
+    pp3.setAddress(new Address("Hungary"));
+    pp3.setBirthYear(1903);
+
+    const pp4 = new Person("Alonzo", "Church", "444-44-4444", "Princeton");
+    pp4.setAddress(new Address("US"));
+    pp4.setBirthYear(1903);
+
+    const persons = [pp1, pp2, pp3, pp4];
+    const res9 = R.map(function (person) {
+      return person.getFullName();
+    })(persons);
+    console.log(res9);
+
+    const res10 = R.reverse(persons);
+    console.log(res10);
+
+    console.log(R.isNil(null));
+    console.log(R.isNil(undefined));
+    console.log(R.isNil(0));
+    console.log(R.isNil([]));
+    console.log(R.isNil(""));
+
+    const gatherStats = function (stat, criteria) {
+      stat[criteria] = R.isNil(stat[criteria]) ? 1 : stat[criteria] + 1;
+      return stat;
+    }
+    const res11 = R.pipe(
+      R.map(R.view(R.lensPath(["address", "country"]))),
+      R.reduce(gatherStats, {})
+    )(persons);
+    console.log(res11);
+
+    const res12 = R.pipe(
+      R.filter(function (person) {
+        return R.equals(
+          R.view(R.lensProp("birthYear"), person),
+          1903
+        );
+      }),
+      R.map(function (person) {
+        return person.getFullName();
+      }),
+      R.join(" and ")
+    )(persons);
+    console.log(res12);
+
+    const names = ["alonzo church", "Haskell curry", "stephen_kleene", "John Von Neumann",
+      "stephen_kleene"];
+    const result = [];
+    for (let i = 0; i < names.length; i++) {
+      const n = names[i];
+      if (n !== undefined && n !== null) {
+        const ns = n.replace(/_/, " ").split(" ");
+
+        for (let j = 0; j < ns.length; j++) {
+          const p = ns[j];
+          ns[j] = p.charAt(0).toUpperCase() + p.slice(1);
+        }
+
+        if (result.indexOf(ns.join(" ")) < 0) {
+          result.push(ns.join(" "));
+        }
+      }
+    }
+    result.sort();
+    console.log(result);
+
+    const startCase = function(str) {
+      return str
+        .split(" ")
+        .map(function (word) {
+          return R.toUpper(R.head(word)) + R.tail(word);
+        })
+        .join(" ");
+    }
+    const res13 = R.pipe(
+      R.reject(R.isNil),
+      R.uniq,
+      R.map(R.replace(/_/, " ")),
+      R.map(startCase),
+      R.sort(function (a, b) {
+        return a - b;
+      })
+    )(names);
+    console.log(res13);
+
+    function sum2(arr, acc) {
+      if (R.isEmpty(arr)) {
+        return acc;
+      }
+      return sum2(R.tail(arr), acc + R.head(arr));
+    }
+
+    const res14 = sum2([1, 2, 3, 4, 5, 6, 7, 8, 9], 0);
+    console.log(res14);
+
+    function Node(val) {
+      this.val = val;
+      this.parent = null;
+      this.children = [];
+    }
+    Node.prototype.isRoot = function () {
+      return R.isNil(this.parent);
+    }
+    Node.prototype.children = function () {
+      return this.children;
+    }
+    Node.prototype.hasChildren = function () {
+      return R.length(this.children) > 0;
+    }
+    Node.prototype.getValue = function () {
+      return this.val;
+    }
+    Node.prototype.setValue = function (val) {
+      this.val = val;
+    }
+    Node.prototype.append = function (child) {
+      child.parent = this;
+      this.children.push(child);
+      return this;
+    }
+    Node.prototype.toString = function () {
+      return "Node (val: " + this.val + ", children: " + this.children.length + ")";
+    }
+
+    const church2 = new Node(new Person("Alonzo", "Church", "111-11-1111"));
+
+    const make = R.curry(function (a, b, c, d) {
+      console.log(a, b, c, d);
+    });
+    const cd = make(R.__, R.__, 3, 4);
+    cd(1, 2);
 
     // const Option = Monad.Option;
     //

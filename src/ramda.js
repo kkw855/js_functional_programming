@@ -7671,7 +7671,7 @@
    * @since v0.1.0
    * @category Object
    * @sig [k] -> {k: v} -> [v]
-   * @param {Array} ps The property names to fetch
+   * @param {Array} ps The property names to fetchUmdMin
    * @param {Object} obj The object to query
    * @return {Array} The corresponding values or partially applied function.
    * @example

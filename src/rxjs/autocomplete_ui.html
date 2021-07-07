@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>자동완성 UI</title>
+  <script src="../promise.min.js"></script>
+<!--  <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8.1/dist/polyfill.min.js"></script>-->
+<!--  <script src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0/dist/fetch.umd.min.js"></script>-->
+  <script src="../fetch.umd.min.js"></script>
+  <script src="../ramda.js"></script>
+  <script src="../monad.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/7.2.0/rxjs.umd.min.js" integrity="sha512-MlqMFvHwgWJ1vfts5fdC2WzxDaIXWfYuAd9Tb2lobtF61Gk+HIRDrbtxgasBSM9lZgOK9ilwK9LqFIYEV+k0IA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    window.onload = function () {
+
+      fetch("https://api.github.com/search/users?q=aaa")
+      .then(function (res) {
+        console.log(res.json());
+      });
+
+
+      rxjs.ajax({
+        url: "http://localhost:7643/login",
+        method: "POST",
+        body: "This is just a tribute"
+      })
+
+      // rxjs.ajax.getJSON("https://api.github.com/search/users?q=aaa");
+
+
+      // const keyup$ =
+      //   rxjs
+      //     .fromEvent(document.querySelector("#search"), "keyup")
+      //     .pipe(
+      //       rxjs.operators.map(function (event) {
+      //         return event.target.value;
+      //       }),
+      //       rxjs.operators.mergeMap(function (query) {
+      //         return rxjs.ajax.getJSON("https://api.github.com/search/users?q=" + query);
+      //       })
+      //     );
+      //
+      // keyup$.subscribe(function (value) {
+      //   console.log("서버로부터 받은 검색 결과", value);
+      // });
+    };
+  </script>
+</head>
+<body>
+<label for="search"></label>
+<input id="search" type="text" placeholder="검색하고 싶은 사용자 아이디를 입력해주세요"/>
+</body>
+</html>

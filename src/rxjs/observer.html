@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Observer Pattern</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
+  <style>
+    li, ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    dt {
+      background-color: black;
+      color: white;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background-color: #e3e3e3;
+      border-radius: 5px;
+      padding: 10px 20px;
+      margin: 10px 0;
+    }
+
+    .color {
+      display: inline-block;
+      width: 40px;
+      height: 13px;
+      margin-left: 5px;
+      border: 1px solid #333;
+    }
+  </style>
+  <script src="../ramda.js"></script>
+  <script src="../monad.js"></script>
+  <script src="../rxjs.js"></script>
+  <script src="../promise.min.js"></script>
+  <script>
+    "use strict";
+
+    function NewsPaper() {
+      this.observers = [];
+    }
+
+    NewsPaper.prototype.setNews = function (news) {
+      this.notify(news);
+    }
+    NewsPaper.prototype.add = function (observer) {
+      this.observers.push(observer);
+    }
+    NewsPaper.prototype.remove = function (observer) {
+      const idx = this.observers.indexOf(observer);
+      if (idx !== -1) {
+        this.observers.splice(idx, 1);
+      }
+    }
+    NewsPaper.prototype.notify = function (news) {
+      this.observers.forEach(function (v) {
+        v.update(news);
+      });
+    }
+
+    function NewsScrapper() {
+    }
+
+    NewsScrapper.prototype.update = function (news) {
+      console.log("뉴스를 스크랩하자 - " + news);
+    }
+
+    function NewsReader() {
+    }
+
+    NewsReader.prototype.update = function (news) {
+      console.log("뉴스를 읽자 - " + news);
+    }
+
+    const newsPaper = new NewsPaper();
+
+    // 구독하기
+    newsPaper.add(new NewsScrapper());
+    newsPaper.add(new NewsReader());
+
+    // 상태 변경
+    newsPaper.setNews("북한 미사일 발사!!!");
+    newsPaper.setNews("코스피 최저점 이탈!!!");
+    newsPaper.setNews("남북평화회담 성사");
+    newsPaper.setNews("남북통일");
+
+    window.onload = function () {
+      const request = new XMLHttpRequest();
+      request.open("get", "https://swapi.dev/api/people?format=json")
+      request.onload = function () {
+        if (this.status === 200) {
+          document.querySelector("#users").innerHTML = process(JSON.parse(this.response));
+        } else {
+          throw new Error("Error");
+        }
+      }
+      request.send();
+    }
+
+    function process(people) {
+      return users(people.results);
+    }
+
+    function getBroca(height) {
+      return (height - 100 * 0.9).toFixed(2);
+    }
+
+    const getBmiByGender = R.curry(function (gender, height) {
+      return gender === "mail" ?
+        (height / 100 * height / 100 * 22).toFixed(2) :
+        (height / 100 * height / 100 * 21).toFixed(2);
+    });
+
+    const getObesityUsingBroca = function (broca, mass) {
+      return ((mass - broca) / broca * 100).toFixed(2);
+    }
+
+    const getObesityUsingBmi = function (bmi, mass) {
+      return ((mass - bmi) / bmi * 100).toFixed(2);
+    }
+
+    const users = R.pipe(
+      R.filter(function (p) {
+        return /male|female/.test(p.gender);
+      }),
+      R.map(function (user) {
+        return R.mergeDeepLeft(
+          user,
+          logic(user.height, user.mass, user.gender)
+        );
+      }),
+      R.map(makeHtml),
+      R.join("")
+    );
+
+    function logic(height, mass, gender) {
+      const broca = getBroca(height);
+      const bmi = getBmiByGender(gender, height);
+      return {
+        broca: broca,
+        bmi: bmi,
+        obesityUsingBroca: getObesityUsingBroca(broca, mass),
+        obesityUsingBmi: getObesityUsingBmi(bmi, mass),
+      }
+    }
+
+    function makeHtml(user) {
+      return "<li class='card'>" +
+        "<dl>" +
+        "<dt>" + user.name + " <i class='fa gender'></i></dt>".replace("gender",
+          "fa-" + user.gender) +
+        "<dd><span>키 : </span><span>" + user.height + " cm</span></dd>" +
+        "<dd><span>몸무게 : </span><span>" + user.mass + " kg</span></dd>" +
+        "<dd><span>BROCA 표준체중 : </span><span>" + user.broca + " kg</span></dd>" +
+        "<dd><span>BROCA 비만도 : </span><span>" + user.obesityUsingBroca + "</span></dd>" +
+        "<dd><span>BMI 표준체중 : </span><span>" + user.bmi + " kg</span></dd>" +
+        "<dd><span>BMI 비만도 : </span><span>" + user.obesityUsingBmi + "</span></dd>" +
+        "</dl>" +
+        "</li>";
+    }
+
+    const currentTarget$ = rxjs
+      .fromEvent(document, "click")
+      .pipe(
+        rxjs.operators.pluck("currentTarget")
+      );
+
+    const observer = function (currentTarget) {
+      console.log(currentTarget);
+    }
+
+    currentTarget$.subscribe(observer);
+
+    const users2 = [{
+      name: "유비",
+      birthYear: 161,
+      nationality: "촉",
+    }, {
+      name: "손권",
+      birthYear: 182,
+      nationality: "오"
+    }, {
+      name: "관우",
+      birthYear: 160,
+      nationality: "촉",
+    }, {
+      name: "장비",
+      birthYear: 168,
+      nationality: "촉",
+    }, {
+      name: "조조",
+      birthYear: 155,
+      nationality: "위"
+    }, {
+      name: "손권",
+      birthYear: 182,
+      nationality: "오"
+    }];
+
+    rxjs
+      .from(users2)
+      .pipe(
+        rxjs.operators.filter(function (user) {
+          return user.nationality === "촉";
+        })
+      )
+      .subscribe(function (user) {
+        console.log(user);
+      })
+
+    const numbers$ = new rxjs.Observable(function (observer) {
+      try {
+        observer.next(1);
+        observer.next(2);
+        // throw new Error("데이터 전달 도중 에러가 발생했습니다");
+        observer.next(3);
+        observer.complete();
+      } catch (e) {
+        observer.error(e)
+      }
+    });
+    numbers$.subscribe({
+      next: function (v) {
+        console.log(v);
+      },
+      error: function (e) {
+        console.error(e);
+      },
+      complete: function () {
+        console.log("데이터 전달 완료");
+      }
+    });
+
+    const interval$ = new rxjs.Observable(function (observer) {
+      const id = setInterval(function () {
+        observer.next(new Date().toString());
+      }, 1000);
+
+      return function () {
+        console.log("Interval 제거");
+        clearInterval(id);
+      };
+    });
+    const subscription = interval$.subscribe(function (v) {
+      console.log(v);
+    });
+    setTimeout(function () {
+      subscription.unsubscribe();
+    }, 5000);
+
+    rxjs
+      .of(10, 20, 30)
+      .subscribe({
+        next: console.log,
+        error: console.error,
+        complete: function () {
+          console.log("완료");
+        }
+      });
+
+    rxjs
+      .range(1, 10)
+      .subscribe({
+        next: console.log,
+        error: console.error,
+        complete: function () {
+          console.log("완료");
+        }
+      });
+
+    new Map([[1, 2], [2, 4], [4, 8]])
+
+    // const map$ = rxjs.from();
+    // map$.subscribe({
+    //   next: console.log,
+    //   error: console.error,
+    //   complete: function () {
+    //     console.log("완료");
+    //   }
+    // });
+
+    // rxjs
+    //   .interval(1000)
+    //   .subscribe({
+    //     next: console.log,
+    //     error: console.error,
+    //     complete: function () {
+    //       console.log("완료");
+    //     }
+    //   });
+
+    rxjs
+      .of(1, -2, 3)
+      .pipe(
+        rxjs.operators.map(function (v) {
+          return v < 0 ? rxjs.NEVER : v;
+        })
+      )
+      .subscribe({
+        next: console.log,
+        error: console.error,
+        complete: function () {
+          console.log("완료");
+        }
+      });
+
+    const promise = new Promise(function (resolve, reject) {
+      try {
+        let value = 0;
+        setInterval(function () {
+          console.log("is going " + value);
+          resolve(value++);
+        }, 1000);
+      } catch (e) {
+        reject("error promise");
+      }
+    });
+
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+    promise.then(
+      function (v) {
+        console.log("promise value " + v);
+      }
+    );
+  </script>
+</head>
+<body>
+<div id="users"></div>
+</body>
+</html>
