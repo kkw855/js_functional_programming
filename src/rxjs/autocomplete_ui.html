@@ -13,36 +13,40 @@
   <script>
     window.onload = function () {
 
-      fetch("https://api.github.com/search/users?q=aaa")
-      .then(function (res) {
-        console.log(res.json());
-      });
-
-
-      rxjs.ajax({
-        url: "http://localhost:7643/login",
-        method: "POST",
-        body: "This is just a tribute"
-      })
-
-      // rxjs.ajax.getJSON("https://api.github.com/search/users?q=aaa");
-
-
-      // const keyup$ =
-      //   rxjs
-      //     .fromEvent(document.querySelector("#search"), "keyup")
-      //     .pipe(
-      //       rxjs.operators.map(function (event) {
-      //         return event.target.value;
-      //       }),
-      //       rxjs.operators.mergeMap(function (query) {
-      //         return rxjs.ajax.getJSON("https://api.github.com/search/users?q=" + query);
-      //       })
-      //     );
-      //
-      // keyup$.subscribe(function (value) {
-      //   console.log("서버로부터 받은 검색 결과", value);
+      // fetch("https://api.github.com/search/users?q=aaa")
+      // .then(function (res) {
+      //   console.log(res.json());
       // });
+
+      // const res = rxjs.ajax.ajax.getJSON("https://api.github.com/search/users?q=aaa");
+      // console.log(res);
+
+
+      // const obs$ = rxjs.ajax.getJSON("https://api.github.com/users?per_page=5").pipe(
+      //   rxjs.operators.map(function userResponse() {
+      //     console.log('users: ', userResponse);
+      //   }),
+      //   rxjs.operators.catchError(function (error) {
+      //     console.log('error: ', error);
+      //     return rxjs.of(error);
+      //   })
+      // );
+
+      const keyup$ =
+        rxjs
+          .fromEvent(document.querySelector("#search"), "keyup")
+          .pipe(
+            rxjs.operators.map(function (event) {
+              return event.target.value;
+            }),
+            rxjs.operators.mergeMap(function (query) {
+              return rxjs.ajax.ajax.getJSON("https://api.github.com/search/users?q=" + query);
+            })
+          );
+
+      keyup$.subscribe(function (value) {
+        console.log("서버로부터 받은 검색 결과", value);
+      });
     };
   </script>
 </head>

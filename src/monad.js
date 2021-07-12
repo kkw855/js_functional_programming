@@ -5,10 +5,10 @@ var Monad = (function Monad(ex) {
   Maybe.fromNullable = function(value) {
     return R.isNil(value) ? new Nothing() : new Just(value);
   }
-  Maybe.prototype.none = function() {
+  Maybe.prototype.nothing = function() {
     return new Nothing();
   }
-  Maybe.prototype.some = function(value) {
+  Maybe.prototype.just = function(value) {
     return new Just(value);
   }
   Maybe.prototype.isEmpty = function() {
@@ -18,7 +18,7 @@ var Monad = (function Monad(ex) {
     throw new TypeError("Maybe.get");
   }
   Maybe.prototype.map = function(f) {
-    return this.isEmpty() ? this.none() : this.some(f(this.get()));
+    return this.isEmpty() ? this : this.just(f(this.get()));
   }
 
   function Just(value) {
@@ -100,3 +100,13 @@ var Monad = (function Monad(ex) {
 
   return ex;
 }(Monad || {}))
+
+var Common = (function Common(ex) {
+  const Maybe = Monad.Maybe;
+
+  ex.safeQuerySelector = function (query) {
+    return Maybe.fromNullable(document.querySelector(query));
+  }
+
+  return ex;
+}(Common || {}))
