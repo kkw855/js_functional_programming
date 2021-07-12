@@ -4,22 +4,25 @@ var Monad = (function Monad(ex) {
   }
   Maybe.fromNullable = function(value) {
     return R.isNil(value) ? new Nothing() : new Just(value);
-  }
+  };
+  Maybe.lift = R.curry(function (f, value) {
+    return Maybe.fromNullable(value).map(f);
+  });
   Maybe.prototype.nothing = function() {
     return new Nothing();
-  }
+  };
   Maybe.prototype.just = function(value) {
     return new Just(value);
-  }
+  };
   Maybe.prototype.isEmpty = function() {
     return this instanceof Nothing;
-  }
+  };
   Maybe.prototype.get = function() {
     throw new TypeError("Maybe.get");
-  }
+  };
   Maybe.prototype.map = function(f) {
     return this.isEmpty() ? this : this.just(f(this.get()));
-  }
+  };
 
   function Just(value) {
     this.value = value;
@@ -106,6 +109,10 @@ var Common = (function Common(ex) {
 
   ex.safeQuerySelector = function (query) {
     return Maybe.fromNullable(document.querySelector(query));
+  }
+
+  ex.upperFirst = function (str) {
+    return R.toUpper(R.head(str)) + R.tail(str);
   }
 
   return ex;
