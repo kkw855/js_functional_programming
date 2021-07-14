@@ -10,7 +10,7 @@ test('첫 글자를 대문자로', () => {
 });
 
 test('Query String URL', () => {
-  expect(C.buildQueryString("https://www.example.com", {
+  expect(C.buildQueryStringURL("https://www.example.com", {
     a: 3.14,
     b: "abc",
     c: 'c'

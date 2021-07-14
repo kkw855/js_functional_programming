@@ -157,10 +157,10 @@ var Common = (function Common(ex) {
     return R.toUpper(R.head(str)) + R.tail(str);
   };
 
-  ex.buildQueryString = function (domain, query) {
-    const queryString = objToString("=", "&")(query);
+  ex.buildQueryStringURL = R.curry(function (domain, query) {
+    const queryString = buildQueryString(query);
     return domain + "?" + queryString;
-  };
+  });
 
   const objToString = R.curry(function (pair, separator, obj) {
     return R.pipe(
@@ -170,6 +170,8 @@ var Common = (function Common(ex) {
       R.join(separator)
     )(R.keys(obj), R.values(obj));
   });
+
+  const buildQueryString = objToString("=", "&");
 
   return ex;
 }(Common || {}))
