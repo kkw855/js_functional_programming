@@ -1,0 +1,30 @@
+{
+  "name": "js_functional_programming",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "t1": "qunit src/test_1.js",
+    "jest": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkw855/js_functional_programming.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kkw855/js_functional_programming/issues"
+  },
+  "homepage": "https://github.com/kkw855/js_functional_programming#readme",
+  "dependencies": {
+    "ramda": "^0.27.1",
+    "rxjs": "^7.2.0"
+  },
+  "devDependencies": {
+    "jest": "^27.0.6",
+    "qunitjs": "^2.4.1"
+  }
+}

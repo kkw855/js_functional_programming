@@ -1,6 +1,9 @@
+"use restrict";
+
 var Monad = (function Monad(ex) {
   function Maybe(value) {
-    return Maybe.fromNullable(value);
+    this.value = value;
+    throw new TypeError("Must use Just or Nothing.");
   }
   Maybe.fromNullable = function(value) {
     return R.isNil(value) ? new Nothing() : new Just(value);
@@ -8,35 +11,72 @@ var Monad = (function Monad(ex) {
   Maybe.lift = R.curry(function (f, value) {
     return Maybe.fromNullable(value).map(f);
   });
-  Maybe.prototype.nothing = function() {
-    return new Nothing();
-  };
-  Maybe.prototype.just = function(value) {
+  Maybe.just = function (value) {
     return new Just(value);
   };
+  Maybe.nothing = function () {
+    return new Nothing();
+  }
   Maybe.prototype.isEmpty = function() {
     return this instanceof Nothing;
   };
-  Maybe.prototype.get = function() {
-    throw new TypeError("Maybe.get");
-  };
+  // Maybe.prototype.get = function() {
+  //   return this.isEmpty() ?
+  //     throw new TypeError("Maybe.get") :
+  //     this.value;
+  // };
+  Maybe.prototype.isNothing = function () {
+    return this.isEmpty();
+  }
+  Maybe.prototype.isJust = function () {
+    return !this.isEmpty();
+  }
   Maybe.prototype.map = function(f) {
-    return this.isEmpty() ? this : this.just(f(this.get()));
+    return this.isEmpty() ?
+      Maybe.nothing() :
+      Maybe.fromNullable(f(this.value));
   };
 
   function Just(value) {
     this.value = value;
   }
   Just.prototype = Object.create(Maybe.prototype);
-  Just.prototype.get = function() {
+  Just.prototype.map = function(f) {
+    return Maybe.fromNullable(f(this.value));
+  };
+  Just.prototype.getOrElse = function() {
     return this.value;
-  }
+  };
+  Just.prototype.filter = function(f) {
+    return Maybe.fromNullable(f(this.value) ?
+      this.value :
+      null
+    );
+  };
+  Just.prototype.chain = function(f) {
+    return f(this.value);
+  };
+  Just.prototype.toString = function() {
+    return "Maybe.Just(" + this.value + ")";
+  };
 
   function Nothing() {}
   Nothing.prototype = Object.create(Maybe.prototype);
-  Nothing.prototype.get = function() {
-    throw new TypeError("Nothing.get");
-  }
+  Nothing.prototype.map = function() {
+    return this;
+  };
+  Nothing.prototype.getOrElse = function(other) {
+    return other;
+  };
+  Nothing.prototype.filter = function() {
+    return this;
+  };
+  Nothing.prototype.chain = function() {
+    return this;
+  };
+  Nothing.prototype.toString = function() {
+    return "Maybe.Nothing";
+  };
 
   ex.Maybe = Maybe;
   ex.Just = Just;
