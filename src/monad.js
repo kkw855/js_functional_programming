@@ -1,5 +1,7 @@
 "use restrict";
 
+const R = require("ramda");
+
 var Monad = (function Monad(ex) {
   function Maybe(value) {
     this.value = value;
@@ -149,11 +151,28 @@ var Common = (function Common(ex) {
 
   ex.safeQuerySelector = function (query) {
     return Maybe.fromNullable(document.querySelector(query));
-  }
+  };
 
   ex.upperFirst = function (str) {
     return R.toUpper(R.head(str)) + R.tail(str);
-  }
+  };
+
+  ex.buildQueryString = function (domain, query) {
+    const queryString = objToString("=", "&")(query);
+    return domain + "?" + queryString;
+  };
+
+  const objToString = R.curry(function (pair, separator, obj) {
+    return R.pipe(
+      R.zipWith(function (key, value) {
+        return key + pair + value
+      }),
+      R.join(separator)
+    )(R.keys(obj), R.values(obj));
+  });
 
   return ex;
 }(Common || {}))
+
+exports.Monad = Monad;
+exports.Common = Common;

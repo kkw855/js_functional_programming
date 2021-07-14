@@ -1,9 +1,18 @@
 "use strict";
 
-function sum(a, b) {
-  return a + b;
-}
+const lib = require("./monad");
 
-test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3);
+const C = lib.Common;
+
+test('첫 글자를 대문자로', () => {
+  expect(C.upperFirst("fred")).toBe("Fred");
+  expect(C.upperFirst("fRED")).toBe("FRED");
+});
+
+test('Query String URL', () => {
+  expect(C.buildQueryString("https://www.example.com", {
+    a: 3.14,
+    b: "abc",
+    c: 'c'
+  })).toBe("https://www.example.com?a=3.14&b=abc&c=c");
 });
