@@ -13,6 +13,7 @@ test('Query String URL', () => {
   expect(C.buildQueryStringURL("https://www.example.com", {
     a: 3.14,
     b: "abc",
-    c: 'c'
-  })).toBe("https://www.example.com?a=3.14&b=abc&c=c");
+    c: 'c',
+    redirect_url: "url"
+  })).toBe("https://www.example.com?a=3.14&b=abc&c=c&redirect_url=url");
 });

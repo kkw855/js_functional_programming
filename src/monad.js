@@ -144,7 +144,7 @@ var Monad = (function Monad(ex) {
   ex.IO = IO;
 
   return ex;
-}(Monad || {}))
+}(Monad || {}));
 
 var Common = (function Common(ex) {
   const Maybe = Monad.Maybe;
@@ -174,7 +174,7 @@ var Common = (function Common(ex) {
   const buildQueryString = objToString("=", "&");
 
   return ex;
-}(Common || {}))
+}(Common || {}));
 
 exports.Monad = Monad;
 exports.Common = Common;
